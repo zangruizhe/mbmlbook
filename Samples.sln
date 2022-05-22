@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnderstandingAsthma", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HarnessingTheCrowd", "src\7. Harnessing the Crowd\HarnessingTheCrowd.csproj", "{6C1AA594-18B5-4131-B5C7-F5CF78A01D29}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpVersion", "FSharpVersion\FSharpVersion.fsproj", "{E3EEF340-0A3E-4030-95A6-AC529DA7FA2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{6C1AA594-18B5-4131-B5C7-F5CF78A01D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C1AA594-18B5-4131-B5C7-F5CF78A01D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C1AA594-18B5-4131-B5C7-F5CF78A01D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3EEF340-0A3E-4030-95A6-AC529DA7FA2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3EEF340-0A3E-4030-95A6-AC529DA7FA2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3EEF340-0A3E-4030-95A6-AC529DA7FA2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3EEF340-0A3E-4030-95A6-AC529DA7FA2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
