@@ -3,3 +3,6 @@ Microsoft.ML.Probabilistic
 Microsoft.ML.Probabilistic.Compiler
 Microsoft.ML.Probabilistic.Learners
 Microsoft.ML.Probabilistic.Visualizers.Windows
+Microsoft.NET.Test.Sdk
+Microsoft.Research.Glo 
+Microsoft.Research.GloObject
