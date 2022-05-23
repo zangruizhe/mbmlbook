@@ -299,9 +299,10 @@ module Unrolled =
                     | 1 ->
                         (isCorrect.[p][q])
                             .SetTo(
-                                Factor.AddNoise (unrolledSkills.[p][skills[0]]) (probNotMistake[q]) (probGuess[q])
-                            //                                    ProbabilityOfNotMistake
-//                                    ProbabilityOfGuess
+                                Factor.AddNoise
+                                    (unrolledSkills.[p][skills[0]]) // (probNotMistake[q]) (probGuess[q])
+                                    ProbabilityOfNotMistake
+                                    ProbabilityOfGuess
                             )
                     | 2 ->
                         let hasSkills =
@@ -310,7 +311,12 @@ module Unrolled =
                                 .Named("hasSkills" + $"_p{p}_q{q}")
 
                         (isCorrect.[p][q])
-                            .SetTo(Factor.AddNoise hasSkills (probNotMistake[q]) (probGuess[q]))
+                            .SetTo(
+                                Factor.AddNoise
+                                    hasSkills //(probNotMistake[q]) (probGuess[q])
+                                    ProbabilityOfNotMistake
+                                    ProbabilityOfGuess
+                            )
                     | _ -> failwith "can not go to here"))
 
         | _ -> failwith "should not come to here"
