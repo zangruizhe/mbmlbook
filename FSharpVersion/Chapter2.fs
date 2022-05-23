@@ -308,7 +308,7 @@ module Unrolled =
                         let hasSkills =
                             (unrolledSkills.[p][skills[0]]
                              &&& unrolledSkills.[p][skills[1]])
-                                .Named("hasSkills" + $"_p{p}_q{q}")
+                                .Named("hasSkills" + $"_p{p}")
 
                         (isCorrect.[p][q])
                             .SetTo(
@@ -326,16 +326,22 @@ module Unrolled =
         SetObserved inputs obs_correct obs_true_skill
 
     let InferSkills () =
-        //        let posterior =
-//            engine.Infer<Bernoulli [] []>(unrolledSkills)
 
-        unrolledSkills
-        |> Array.iteri (fun i post ->
-            //            printfn $"people[{i}]skill posterior=%A{post}"
-            post
-            |> Array.iteri (fun j p ->
-                let p = engine.Infer<Bernoulli>(p)
-                printfn $"\t\tpeople[{i}] skill[{j}] posterior=%A{p.GetLogProbTrue()}"))
+        //        engine.Compiler.GivePriorityTo(typeof<ReplicateOp_NoDivide>)
+//        let p = 0
+//        let s = 0
+//        let x = unrolledSkills.[p][s]
+//        let post = engine.Infer<Bernoulli>(x)
+//        printfn $"\t\tpeople[{p}] skill[{s}] posterior=%A{post.GetLogProbTrue()}"
+
+        for p in 0 .. inputs.NumberOfPeople - 1 do
+            (for s in 0 .. inputs.Quiz.NumberOfSkills - 1 do
+                let post =
+                    engine.Infer<Bernoulli>(unrolledSkills.[p][s])
+
+                printfn $"\t\tpeople[{p}] skill[{s}] posterior=%A{post.GetLogProbTrue()}")
+
+        ()
 
 //    let InferIsCorrect () =
 //        let posterior =
@@ -369,7 +375,6 @@ let Infer () =
 
     Unrolled.Construct input3 false true
     Unrolled.InferSkills()
-
 
 //    let input4 =
 //        FileUtils.Load<Inputs>(DataPath, "Toy4")
