@@ -7,10 +7,8 @@ namespace AssessingPeoplesSkills
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     using MBMLViews;
-    
-    using AssessingPeoplesSkills.Models;
+    using Models;
     using MBMLCommon;
 #if NETFULL
     using Point = System.Windows.Point;
@@ -44,11 +42,13 @@ namespace AssessingPeoplesSkills
         {
             var height = new Gaussian(1.84, 0.0001);
 
-            outputter.Out(SteppedGaussian(height, new RealRange { Min = 1.8, Max = 1.9, Steps = 11 }).ToArray(),
+            outputter.Out(SteppedGaussian(height, new RealRange {Min = 1.8, Max = 1.9, Steps = 11}).ToArray(),
                 Contents.S6LearningTheGuessProbabilities.NumberedName,
                 "PDF Demo",
                 "HeightDiscrete");
-            outputter.Out(new RealRange { Min = 1.8, Max = 1.9, Steps = 1000 }.Values.Select(x => new Point(x, Math.Exp(height.GetLogProb(x)))).ToArray(),
+            outputter.Out(
+                new RealRange {Min = 1.8, Max = 1.9, Steps = 1000}.Values
+                    .Select(x => new Point(x, Math.Exp(height.GetLogProb(x)))).ToArray(),
                 Contents.S6LearningTheGuessProbabilities.NumberedName,
                 "PDF Demo",
                 "HeightContinuous");
@@ -57,8 +57,9 @@ namespace AssessingPeoplesSkills
                 "PDF Demo",
                 "Height");
 
-            Console.WriteLine($@"Area of shaded region in the continuous plot: {height.CumulativeDistributionFunction(1.845) - height.CumulativeDistributionFunction(1.835)}");
-            
+            Console.WriteLine(
+                $@"Area of shaded region in the continuous plot: {height.CumulativeDistributionFunction(1.845) - height.CumulativeDistributionFunction(1.835)}");
+
             //// Second method using integration of pdf
             // Func<double, double> pdf = x => Math.Exp(height.GetLogProb(x));
             // Console.WriteLine("Area of shaded region: {0}", pdf.Integrate(1.835, 1.845, 500));
@@ -74,25 +75,19 @@ namespace AssessingPeoplesSkills
         {
             var steps = new List<Point>();
 
-            double sum = 0.0;
+            var sum = 0.0;
 
             var xvals = range.Values.ToArray();
-            for (int i = 0; i < range.Count; i++)
+            for (var i = 0; i < range.Count; i++)
             {
-                double x1 = xvals[i] - (range.StepSize / 2);
-                double x2 = xvals[i] + (range.StepSize / 2);
+                var x1 = xvals[i] - range.StepSize / 2;
+                var x2 = xvals[i] + range.StepSize / 2;
 
-                double d = gaussian.CumulativeDistributionFunction(x2) - gaussian.CumulativeDistributionFunction(x1);
+                var d = gaussian.CumulativeDistributionFunction(x2) - gaussian.CumulativeDistributionFunction(x1);
 
-                if (i == 0)
-                {
-                    x1 = range.Min;
-                }
+                if (i == 0) x1 = range.Min;
 
-                if (i == range.Count - 1)
-                {
-                    x2 = range.Max;
-                }
+                if (i == range.Count - 1) x2 = range.Max;
 
                 steps.Add(new Point(x1, 0));
                 steps.Add(new Point(x1, d));
@@ -111,54 +106,57 @@ namespace AssessingPeoplesSkills
         /// </summary>
         public void BetaDemo()
         {
-            outputter.Out(new[] { new Beta(1, 1), new Beta(2, 2), new Beta(2, 5), new Beta(4, 10), new Beta(8, 20) }, Contents.S6LearningTheGuessProbabilities.NumberedName, "Betas");
+            outputter.Out(new[] {new Beta(1, 1), new Beta(2, 2), new Beta(2, 5), new Beta(4, 10), new Beta(8, 20)},
+                Contents.S6LearningTheGuessProbabilities.NumberedName, "Betas");
         }
 
 
-        Random rnd = new Random();
+        private Random rnd = new Random();
+
         public void BetaSelfAssessment()
         {
-            double true_prob = 0.3;
-            int N = 100;
-            int countTrue = 30;// TrueCount(true_prob, N);
+            var true_prob = 0.3;
+            var N = 100;
+            var countTrue = 30; // TrueCount(true_prob, N);
 
-            int numSamples = 10000;
+            var numSamples = 10000;
 
             var counts = new int[50];
-            for (int i = 0; i < numSamples; i++)
+            for (var i = 0; i < numSamples; i++)
             {
                 double p;
                 while (true)
                 {
                     p = rnd.NextDouble();
-                    int sample_count = TrueCount(p, N);
+                    var sample_count = TrueCount(p, N);
                     if (sample_count == countTrue) break;
                 }
 
                 // Discretise into bins
-                int binNum = (int)Math.Floor(p * counts.Length);
+                var binNum = (int) Math.Floor(p * counts.Length);
                 counts[binNum]++;
             }
+
             outputter.Out(counts, Contents.S6LearningTheGuessProbabilities.NumberedName, "BetaHistogram");
         }
 
         private int TrueCount(double p, int N)
         {
-            int ct = 0;
-            for (int j = 0; j < N; j++)
-            {
-                if (rnd.NextDouble() < p) ct++;
-            }
+            var ct = 0;
+            for (var j = 0; j < N; j++)
+                if (rnd.NextDouble() < p)
+                    ct++;
             return ct;
         }
 
-#region Inference
+        #region Inference
+
         /// <summary>
         /// Toy example the with 3 questions and 2 skills. Used to create first results table
         /// </summary>
         public void ToyWith3QuestionsAnd2Skills()
         {
-            Experiment experiment = new Experiment
+            var experiment = new Experiment
             {
                 Inputs = LoadInputData("Toy3"),
                 Model = new UnrolledModel
@@ -176,11 +174,11 @@ namespace AssessingPeoplesSkills
             outputter.Out(
                 new Dictionary<string, object>
                 {
-                    { "IsCorrect1", experiment.Inputs.IsCorrect.Select(r => r[0]).ToArray() },
-                    { "IsCorrect2", experiment.Inputs.IsCorrect.Select(r => r[1]).ToArray() },
-                    { "IsCorrect3", experiment.Inputs.IsCorrect.Select(r => r[2]).ToArray() },
-                    { "P(csharp)", experiment.Results.SkillsPosteriorMeans.Select(p => new Bernoulli(p[0])).ToArray() },
-                    { "P(sql)", experiment.Results.SkillsPosteriorMeans.Select(p => new Bernoulli(p[1])).ToArray() }
+                    {"IsCorrect1", experiment.Inputs.IsCorrect.Select(r => r[0]).ToArray()},
+                    {"IsCorrect2", experiment.Inputs.IsCorrect.Select(r => r[1]).ToArray()},
+                    {"IsCorrect3", experiment.Inputs.IsCorrect.Select(r => r[2]).ToArray()},
+                    {"P(csharp)", experiment.Results.SkillsPosteriorMeans.Select(p => new Bernoulli(p[0])).ToArray()},
+                    {"P(sql)", experiment.Results.SkillsPosteriorMeans.Select(p => new Bernoulli(p[1])).ToArray()}
                 },
                 Contents.S2TestingOutTheModel.NumberedName,
                 "ThreeQuestionsResults");
@@ -191,9 +189,9 @@ namespace AssessingPeoplesSkills
         /// </summary>
         public void LoopyExample()
         {
-            string section = Contents.S3Loopiness.NumberedName;
-            Inputs inputs = LoadInputData("Toy4");
-            Experiment loopyExperiment = new Experiment
+            var section = Contents.S3Loopiness.NumberedName;
+            var inputs = LoadInputData("Toy4");
+            var loopyExperiment = new Experiment
             {
                 // version without plates
                 Inputs = inputs,
@@ -207,7 +205,7 @@ namespace AssessingPeoplesSkills
                 }
             };
             AnnounceAndRun(loopyExperiment, section);
-            Experiment exactLoopyExperiment = new Experiment
+            var exactLoopyExperiment = new Experiment
             {
                 // exact results
                 Inputs = inputs,
@@ -222,7 +220,7 @@ namespace AssessingPeoplesSkills
                 }
             };
             AnnounceAndRun(exactLoopyExperiment, section);
-            ExperimentComparison comparison = new ExperimentComparison(
+            var comparison = new ExperimentComparison(
                 new[]
                 {
                     loopyExperiment,
@@ -231,23 +229,23 @@ namespace AssessingPeoplesSkills
 
             //learningSkills.Run();
 
-            var histories = ((UnrolledModel)loopyExperiment.Model).MessageHistories;
+            var histories = ((UnrolledModel) loopyExperiment.Model).MessageHistories;
 
             // Show message progress for edges A, B, C, D
             var messageHistories = new Dictionary<string, object>
-                                       {
-                                           { "Iteration", new[] { 1, 2, 3, 4, 5 } },
-                                           { "A", histories["sql_uses_B[1]"].ToArray() },
-                                           { "B", histories["sql_uses_F[2]"].ToArray() },
-                                           { "C", histories["csharp_uses_B[2]"].ToArray() },
-                                           { "D", histories["csharp_uses_F[1]"].ToArray() }
-                                       };
-            
+            {
+                {"Iteration", new[] {1, 2, 3, 4, 5}},
+                {"A", histories["sql_uses_B[1]"].ToArray()},
+                {"B", histories["sql_uses_F[2]"].ToArray()},
+                {"C", histories["csharp_uses_B[2]"].ToArray()},
+                {"D", histories["csharp_uses_F[1]"].ToArray()}
+            };
+
             outputter.Out(messageHistories, section, "Loop Messages");
             outputter.Out(comparison, section, "Comparison");
         }
 
-        private void AnnounceAndRun(Experiment experiment, string section)
+        public void AnnounceAndRun(Experiment experiment, string section)
         {
             Console.WriteLine($"Running {experiment.ModelName}");
             outputter.Out(experiment, section, experiment.ModelName);
@@ -266,12 +264,12 @@ namespace AssessingPeoplesSkills
             const double ProbNotMistake = 0.9;
             const double ProbSkillTrue = 0.5;
 
-            Inputs inputs = LoadInputData("InputData");
+            var inputs = LoadInputData("InputData");
 
             Console.WriteLine($"\n{Contents.S4MovingToRealData.NumberedName}\n");
             outputter.Out(inputs, Contents.S4MovingToRealData.NumberedName, "Inputs");
             // Original model (point mass priors)
-            Experiment originalExperiment = new Experiment
+            var originalExperiment = new Experiment
             {
                 Inputs = inputs,
                 Model = new NoisyAndModel
@@ -289,10 +287,10 @@ namespace AssessingPeoplesSkills
             Console.WriteLine($"\n{Contents.S5DiagnosingTheProblem.NumberedName}\n");
 
             // Sampled model using ground truth skills
-            Experiment samleSkillsObservedExperiment = new Experiment
+            var samleSkillsObservedExperiment = new Experiment
             {
                 Inputs = originalExperiment.Model.SampleFromModel(
-                            inputs, inputs.NumberOfPeople, new object[] { ProbSkillTrue, true }),
+                    inputs, inputs.NumberOfPeople, new object[] {ProbSkillTrue, true}),
                 Model = new NoisyAndModel
                 {
                     Name = "SampleSkillsObserved",
@@ -305,10 +303,10 @@ namespace AssessingPeoplesSkills
             AnnounceAndRun(samleSkillsObservedExperiment, Contents.S5DiagnosingTheProblem.NumberedName);
 
             // Sampled model using sampled skills
-            Experiment sampleSkillsSampledExperiment = new Experiment
+            var sampleSkillsSampledExperiment = new Experiment
             {
                 Inputs = originalExperiment.Model.SampleFromModel(
-                            inputs, inputs.NumberOfPeople, new object[] { ProbSkillTrue, false }),
+                    inputs, inputs.NumberOfPeople, new object[] {ProbSkillTrue, false}),
                 Model = new NoisyAndModel
                 {
                     Name = "SampleSkillsSampled",
@@ -323,14 +321,14 @@ namespace AssessingPeoplesSkills
             Console.WriteLine($"\n{Contents.S6LearningTheGuessProbabilities.NumberedName}\n");
             outputter.Out(inputs, Contents.S6LearningTheGuessProbabilities.NumberedName, "Inputs");
 
-            Beta guessPrior = BetaFromMeanAndTotalCount(0.25, 10);
+            var guessPrior = BetaFromMeanAndTotalCount(0.25, 10);
             outputter.Out(
                 guessPrior,
                 Contents.S6LearningTheGuessProbabilities.NumberedName,
                 "Priors");
-            
+
             // Random model
-            Experiment randomExperiment = new Experiment
+            var randomExperiment = new Experiment
             {
                 Inputs = inputs,
                 Model = new RandomModel
@@ -347,7 +345,7 @@ namespace AssessingPeoplesSkills
             AnnounceAndRun(randomExperiment, Contents.S6LearningTheGuessProbabilities.NumberedName);
 
             // Model with Beta prior over guess probabilities
-            Experiment learnedExperiment = new Experiment
+            var learnedExperiment = new Experiment
             {
                 Inputs = inputs,
                 Model = new LearnedNoisyAndModel
@@ -363,15 +361,15 @@ namespace AssessingPeoplesSkills
             };
             AnnounceAndRun(learnedExperiment, Contents.S6LearningTheGuessProbabilities.NumberedName);
 
-            Experiment perfectExperiment = new Experiment
+            var perfectExperiment = new Experiment
             {
                 FullyObserved = true,
                 Inputs = inputs,
-                Model = new NoisyAndModel { Name = "Perfect", Index = 9, IsReal = false }
+                Model = new NoisyAndModel {Name = "Perfect", Index = 9, IsReal = false}
             };
             AnnounceAndRun(perfectExperiment, Contents.S6LearningTheGuessProbabilities.NumberedName);
 
-            ExperimentComparison comparison = new ExperimentComparison();
+            var comparison = new ExperimentComparison();
             comparison.Experiments.Add(randomExperiment);
             comparison.Experiments.Add(originalExperiment);
             comparison.Experiments.Add(samleSkillsObservedExperiment);
@@ -382,7 +380,7 @@ namespace AssessingPeoplesSkills
             //Selected guess posteriors
             outputter.Out(
                 learnedExperiment.Results.GuessPosteriors
-                    .Select((ia, i) => new { ia, i })
+                    .Select((ia, i) => new {ia, i})
                     .Where((ia, i) => i % 5 == 0)
                     .ToDictionary<dynamic, string, Beta>(x => "Question " + (x.i + 1), x => x.ia),
                 Contents.S6LearningTheGuessProbabilities.NumberedName,
@@ -390,9 +388,11 @@ namespace AssessingPeoplesSkills
 
             outputter.Out(comparison, Contents.S6LearningTheGuessProbabilities.NumberedName, "Comparison");
         }
-#endregion
 
-#region BetaHelpers
+        #endregion
+
+        #region BetaHelpers
+
         /// <summary>
         /// Betas from mean and total count.
         /// </summary>
@@ -403,9 +403,11 @@ namespace AssessingPeoplesSkills
         {
             return new Beta(mean * totalCount, (1 - mean) * totalCount);
         }
-#endregion
 
-#region File IO
+        #endregion
+
+        #region File IO
+
         /// <summary>
         /// Loads the input data.
         /// </summary>
@@ -418,18 +420,13 @@ namespace AssessingPeoplesSkills
         {
             var inputData = FileUtils.Load<Inputs>(DataPath, filename);
 
-            if (inputData == null)
-            {
-                throw new NullReferenceException("Failed to load input data");
-            }
+            if (inputData == null) throw new NullReferenceException("Failed to load input data");
 
-            if (inputData.Quiz == null)
-            {
-                throw new NullReferenceException("Failed to load quiz data");
-            }
+            if (inputData.Quiz == null) throw new NullReferenceException("Failed to load quiz data");
 
             return inputData;
         }
-#endregion
+
+        #endregion
     }
 }
