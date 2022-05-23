@@ -6,6 +6,7 @@ open Microsoft.ML.Probabilistic.Models.Attributes
 
 let engine = InferenceEngine()
 engine.ShowFactorGraph <- true
+engine.NumberOfIterations <- 5
 
 let GetRangeLen name =
     Variable

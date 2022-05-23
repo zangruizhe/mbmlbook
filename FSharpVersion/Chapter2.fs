@@ -164,13 +164,18 @@ module NoisyAndModel =
         let posterior =
             engine.Infer<Bernoulli [] []>(skill)
 
-        printfn $"skill posterior={posterior}"
+        posterior
+        |> Array.iteri (fun i post ->
+            printfn $"people[{i}]skill posterior=%A{post}"
+
+            post
+            |> Array.iteri (fun j p -> printfn $"\t\tpeople[{i}] skill[{j}] posterior=%A{p.GetLogProbTrue()}"))
 
     let InferIsCorrect () =
         let posterior =
             engine.Infer<Bernoulli [] []>(isCorrect)
 
-        printfn $"isCorrect posterior={posterior}"
+        printfn $"isCorrect posterior=%A{posterior}"
 
 let Infer () =
     printfn $"Chapter2 start"
