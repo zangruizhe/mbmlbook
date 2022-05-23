@@ -53,17 +53,16 @@ module Factor =
 
 module NoisyAndModel =
     let numPeople, People = GetRange "People"
-
     let numSkills, Skills = GetRange "Skills"
 
     let numQuestions, Questions =
         GetRange "Questions"
 
-    let probGuess =
-        GetVarArray<float> "probGuess" Questions
-
     let probNotMistake =
         GetVarArray<float> "probNoMistake" Questions
+
+    let probGuess =
+        GetVarArray<float> "probGuess" Questions
 
     let probSkillTrue =
         GetVarArray<float> "probSkillTrue" Skills
@@ -102,104 +101,85 @@ module NoisyAndModel =
             .Array<VariableArray<bool>, bool [] []>(Variable.Array<bool>(Questions), People)
             .Named("isCorrect")
 
-    let Construct (inputs: Inputs) obs_true_skill obs_correct =
+    let ClearObservedVariables () =
+        skillsNeeded.ClearObservedValue()
+        skillsQuestionsMask.ClearObservedValue()
+        skill.ClearObservedValue()
+        isCorrect.ClearObservedValue()
+        numPeople.ClearObservedValue()
+        numQuestions.ClearObservedValue()
+        numSkills.ClearObservedValue()
+        numSkillsForEachQuestion.ClearObservedValue()
+        probGuess.ClearObservedValue()
+        probNotMistake.ClearObservedValue()
+        probSkillTrue.ClearObservedValue()
 
-        let ConstructNoisyFactor () =
-            Variable.ForeachBlock People (fun _ ->
-                Variable.ForeachBlock Questions (fun _ ->
-                    let relevantSkills =
-                        Variable
-                            .Subarray(skill[People], skillsNeeded[Questions])
-                            .Named("relevantSkills")
+    let ConstructNoisyFactor () =
+        Variable.ForeachBlock People (fun _ ->
+            Variable.ForeachBlock Questions (fun _ ->
+                let relevantSkills =
+                    Variable
+                        .Subarray(skill[People], skillsNeeded[Questions])
+                        .Named("relevantSkills")
 
-                    let hasSkills =
-                        Variable
-                            .AllTrue(relevantSkills)
-                            .Named("hasSkills")
+                let hasSkills =
+                    Variable
+                        .AllTrue(relevantSkills)
+                        .Named("hasSkills")
 
-                    isCorrect.[People][Questions] <- Factor.AddNoise
-                                                         hasSkills
-                                                         probNotMistake[Questions]
-                                                         probGuess[Questions]))
+                isCorrect.[People][Questions] <- Factor.AddNoise
+                                                     hasSkills
+                                                     probNotMistake[Questions]
+                                                     probGuess[Questions]))
 
-            ()
+    let SetObserved (inputs: Inputs) obs_correct obs_true_skill =
+        numPeople.ObservedValue <- inputs.NumberOfPeople
+        numSkills.ObservedValue <- inputs.Quiz.NumberOfSkills
+        numQuestions.ObservedValue <- inputs.Quiz.NumberOfQuestions
+        numSkillsForEachQuestion.ObservedValue <- inputs.Quiz.NumberSkillsForQuestion
 
-        // add observe
-        let SetObserved (inputs: Inputs) obs_correct obs_true_skill =
-            //        skillsQuestionsMask.ObservedValue <- inputs.Quiz.SkillsQuestionsMask
+        skillsNeeded.ObservedValue <- inputs.Quiz.SkillsForQuestion
 
-            numPeople.ObservedValue <- inputs.NumberOfPeople
-            numSkills.ObservedValue <- inputs.Quiz.NumberOfSkills
-            numQuestions.ObservedValue <- inputs.Quiz.NumberOfQuestions
-            numSkillsForEachQuestion.ObservedValue <- inputs.Quiz.NumberSkillsForQuestion
-
-            skillsNeeded.ObservedValue <- inputs.Quiz.SkillsForQuestion
-
-            match obs_correct, obs_true_skill with
-            | true, false ->
-                isCorrect.ObservedValue <- inputs.IsCorrect
-                skill.ClearObservedValue()
-            | false, true ->
-                skill.ObservedValue <- inputs.StatedSkills
-                isCorrect.ClearObservedValue()
-            | true, true ->
-                skill.ObservedValue <- inputs.StatedSkills
-                isCorrect.ObservedValue <- inputs.IsCorrect
-            | false, false ->
-                //            skill.ClearObservedValue()
-                //            isCorrect.ClearObservedValue()
-                failwith "should not come to here"
-
-                //            probGuess.ClearObservedValue()
-                probGuess.ObservedValue <- Array.init numQuestions.ObservedValue (fun _ -> ProbabilityOfGuess)
-
-                //            probNotMistake.ClearObservedValue()
-                probNotMistake.ObservedValue <- Array.init numQuestions.ObservedValue (fun _ -> ProbabilityOfNotMistake)
-
-                //            probSkillTrue.ClearObservedValue()
-                probSkillTrue.ObservedValue <- Array.init numSkills.ObservedValue (fun _ -> ProbabilityOfSkillTrue)
-
-            ()
-
-        let ClearObservedVariables () =
-            skillsNeeded.ClearObservedValue()
-            skillsQuestionsMask.ClearObservedValue()
+        match obs_correct, obs_true_skill with
+        | true, false ->
+            isCorrect.ObservedValue <- inputs.IsCorrect
             skill.ClearObservedValue()
+        | false, true ->
+            skill.ObservedValue <- inputs.StatedSkills
             isCorrect.ClearObservedValue()
-            numPeople.ClearObservedValue()
-            numQuestions.ClearObservedValue()
-            numSkills.ClearObservedValue()
-            numSkillsForEachQuestion.ClearObservedValue()
-            probGuess.ClearObservedValue()
-            probNotMistake.ClearObservedValue()
-            probSkillTrue.ClearObservedValue()
+        | true, true ->
+            skill.ObservedValue <- inputs.StatedSkills
+            isCorrect.ObservedValue <- inputs.IsCorrect
+        | false, false -> failwith "should not come to here"
 
-            ()
+        probGuess.ObservedValue <- Array.init numQuestions.ObservedValue (fun _ -> ProbabilityOfGuess)
+        probNotMistake.ObservedValue <- Array.init numQuestions.ObservedValue (fun _ -> ProbabilityOfNotMistake)
+        probSkillTrue.ObservedValue <- Array.init numSkills.ObservedValue (fun _ -> ProbabilityOfSkillTrue)
 
+    let Construct (inputs: Inputs) obs_true_skill obs_correct =
         ConstructNoisyFactor()
         SetObserved inputs obs_correct obs_true_skill
 
-        ()
-
     let InferSkills () =
         let posterior =
-            engine.Infer<Bernoulli>(skill)
+            engine.Infer<Bernoulli [] []>(skill)
 
         printfn $"skill posterior={posterior}"
 
     let InferIsCorrect () =
         let posterior =
-            engine.Infer<Bernoulli>(isCorrect)
+            engine.Infer<Bernoulli [] []>(isCorrect)
 
         printfn $"isCorrect posterior={posterior}"
-
-
 
 let Infer () =
     printfn $"Chapter2 start"
 
     let input3 =
         FileUtils.Load<Inputs>(DataPath, "Toy3")
+
+    let input4 =
+        FileUtils.Load<Inputs>(DataPath, "Toy4")
 
     NoisyAndModel.Construct input3 false true
 
