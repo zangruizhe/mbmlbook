@@ -171,7 +171,7 @@ module NoisyAndModel =
             printfn $"people[{i}]skill posterior=%A{post}"
 
             post
-            |> Array.iteri (fun j p -> printfn $"\t\tpeople[{i}] skill[{j}] posterior=%A{p.GetLogProbTrue()}"))
+            |> Array.iteri (fun j p -> printfn $"\t\tpeople[{i}] skill[{j}] posterior=%A{p.LogOdds}"))
 
     let InferIsCorrect () =
         let posterior =
@@ -308,7 +308,7 @@ module Unrolled =
                         let hasSkills =
                             (unrolledSkills.[p][skills[0]]
                              &&& unrolledSkills.[p][skills[1]])
-                                .Named("hasSkills" + $"_p{p}")
+                                .Named("hasSkills" + $"_q{q}")
 
                         (isCorrect.[p][q])
                             .SetTo(
@@ -339,6 +339,7 @@ module Unrolled =
                 let post =
                     engine.Infer<Bernoulli>(unrolledSkills.[p][s])
 
+                printfn $"\t\tpeople[{p}] skill[{s}] posterior=%A{post}"
                 printfn $"\t\tpeople[{p}] skill[{s}] posterior=%A{post.GetLogProbTrue()}")
 
         ()
@@ -369,16 +370,18 @@ let CSharpVersion () =
 let Infer () =
     printfn $"Chapter2 start"
     //    CSharpVersion()
-
+//
     let input3 =
         FileUtils.Load<Inputs>(DataPath, "Toy3")
 
-    Unrolled.Construct input3 false true
-    Unrolled.InferSkills()
+    //    Unrolled.Construct input3 false true
+//    Unrolled.InferSkills()
 
-//    let input4 =
-//        FileUtils.Load<Inputs>(DataPath, "Toy4")
+    NoisyAndModel.Construct input3 false true
+    NoisyAndModel.InferSkills()
+
+//    let InputData =
+//        FileUtils.Load<Inputs>(DataPath, "InputData")
 //
-//    NoisyAndModel.Construct input3 false true
-//
+//    NoisyAndModel.Construct InputData false true
 //    NoisyAndModel.InferSkills()
