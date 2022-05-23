@@ -2,4 +2,3 @@
 open FSharpVersion
 
 Chapter1.Infer()
-printfn "Hello from F#"

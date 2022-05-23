@@ -36,7 +36,6 @@ let CreateWeapon mudder_is_grey=
                 (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenGrey)))
                 (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenAuburn)))
     weapon_is_revolver.ObservedValue <- true
-    printfn $"weapon is revolver"
     
 let CreateHair mudder_is_grey =
     let find_hair = Variable.New<bool>().Named("find_hair")
@@ -45,14 +44,15 @@ let CreateHair mudder_is_grey =
                 (fun _ -> find_hair.SetTo(Variable.Bernoulli(HairGivenAuburn)))
     
     find_hair.ObservedValue <- true
-    printfn $"weapon is revolver and find hair"
     
 let Infer () =
+    printfn $"#####   weapon is revolver"
     CreateBase()
     |> fun prior ->
        CreateWeapon prior
        infer prior
 
+    printfn $"#####   weapon is revolver and find hair"
     CreateBase()
     |> fun prior ->
        CreateWeapon prior
