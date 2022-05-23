@@ -1,1 +1,5 @@
 FSharp.Core
+Microsoft.ML.Probabilistic
+Microsoft.ML.Probabilistic.Compiler
+Microsoft.ML.Probabilistic.Learners
+Microsoft.ML.Probabilistic.Visualizers.Windows

@@ -5,6 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FSharpWrapper.fs" />
     <Compile Include="Chapter1.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
