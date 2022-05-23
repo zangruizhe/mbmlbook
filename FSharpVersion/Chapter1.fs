@@ -21,15 +21,40 @@ let HairGivenAuburn = 0.05
 let engine = InferenceEngine()
 engine.ShowFactorGraph <- true;
 
-let mudder_is_grey = Variable.Bernoulli(Grey)
-let weapon_is_revolver = Variable.New<bool>().Named("weapon_is_revolver")
+let CreateBase()=
+    let mudder_is_grey = Variable.Bernoulli(Grey)
+    mudder_is_grey
 
-Variable.IfBlock mudder_is_grey
-            (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenGrey)))
-            (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenAuburn)))
-
-let Infer () =
-    weapon_is_revolver.ObservedValue <- true
+let private infer mudder_is_grey = 
     let mudder_is_grey_posterior = engine.Infer<Bernoulli>(mudder_is_grey)
     printfn $"mudder_is_grey_posterior={mudder_is_grey_posterior}"
     printfn $"mudder_is_grey_posterior(exp(log))={Math.Exp(mudder_is_grey_posterior.GetLogProbTrue())}"
+    
+let CreateWeapon mudder_is_grey=
+    let weapon_is_revolver = Variable.New<bool>().Named("weapon_is_revolver")
+    Variable.IfBlock mudder_is_grey
+                (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenGrey)))
+                (fun _ -> weapon_is_revolver.SetTo(Variable.Bernoulli(RevolverGivenAuburn)))
+    weapon_is_revolver.ObservedValue <- true
+    printfn $"weapon is revolver"
+    
+let CreateHair mudder_is_grey =
+    let find_hair = Variable.New<bool>().Named("find_hair")
+    Variable.IfBlock mudder_is_grey
+                (fun _ -> find_hair.SetTo(Variable.Bernoulli(HairGivenGrey)))
+                (fun _ -> find_hair.SetTo(Variable.Bernoulli(HairGivenAuburn)))
+    
+    find_hair.ObservedValue <- true
+    printfn $"weapon is revolver and find hair"
+    
+let Infer () =
+    CreateBase()
+    |> fun prior ->
+       CreateWeapon prior
+       infer prior
+
+    CreateBase()
+    |> fun prior ->
+       CreateWeapon prior
+       CreateHair prior
+       infer prior
