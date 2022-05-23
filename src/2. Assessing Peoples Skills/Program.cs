@@ -2,25 +2,24 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using MBMLCommon;
+
 namespace AssessingPeoplesSkills
 {
-    using System;
-    using MBMLCommon;
-    using Microsoft.ML.Probabilistic.Models;
-
     /// <summary>
-    /// The program.
+    ///     The program.
     /// </summary>
     public static class Program
     {
         /// <summary>
-        /// The entry point for the application.
-        /// The first argument, if present, sets the folder to save the output artifacts in.
+        ///     The entry point for the application.
+        ///     The first argument, if present, sets the folder to save the output artifacts in.
         /// </summary>
         public static void Main(string[] args)
         {
             InitializeUI();
-            Outputter outputter = Outputter.GetOutputter(Contents.ChapterName);
+            var outputter = Outputter.GetOutputter(Contents.ChapterName);
 
             try
             {
@@ -43,7 +42,7 @@ namespace AssessingPeoplesSkills
 
         public static void RunExperiments(Outputter outputter)
         {
-            ModelRunner runner = new ModelRunner(outputter);
+            var runner = new ModelRunner(outputter);
 
             Console.WriteLine($"\n{Contents.S2TestingOutTheModel.NumberedName}.\n");
             runner.ToyWith3QuestionsAnd2Skills();

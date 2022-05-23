@@ -5,8 +5,19 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FSharpWrapper.fs" />
+    <Compile Include="Common.fs" />
     <Compile Include="Chapter1.fs" />
+    <Compile Include="Chapter2.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AssessingPeoplesSkills">
+      <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\AssessingPeoplesSkills.dll</HintPath>
+    </Reference>
+    <Reference Include="MBMLCommon">
+      <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\MBMLCommon.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
