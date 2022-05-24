@@ -180,7 +180,7 @@ namespace AssessingPeoplesSkills.Models
         private void InferSkills(ref Results results)
         {
             // Engine.BrowserMode = BrowserMode.Always;
-            Engine.ShowFactorGraph = true;
+            // Engine.ShowFactorGraph = true;
             Engine.NumberOfIterations = 5;
             Engine.MessageUpdated += EngineMessageUpdated;
 

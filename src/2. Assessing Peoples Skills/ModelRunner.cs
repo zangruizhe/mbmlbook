@@ -165,7 +165,7 @@ namespace AssessingPeoplesSkills
                     ProbabilityOfGuess = 0.2,
                     ProbabilityOfNotMistake = 0.9,
                     ProbabilityOfSkillTrue = 0.5,
-                    ShowFactorGraph = false
+                    ShowFactorGraph = false 
                 }
             };
 
@@ -278,7 +278,7 @@ namespace AssessingPeoplesSkills
                     ProbabilityOfGuess = ProbGuess,
                     ProbabilityOfNotMistake = ProbNotMistake,
                     ProbabilityOfSkillTrue = ProbSkillTrue,
-                    ShowFactorGraph = false,
+                    ShowFactorGraph = true,
                     IsReal = true
                 }
             };
@@ -338,7 +338,7 @@ namespace AssessingPeoplesSkills
                     ProbabilityOfNotMistake = 0.5,
                     ProbabilityOfSkillTrue = 0.5,
                     Index = 8,
-                    ShowFactorGraph = false,
+                    ShowFactorGraph = true,
                     IsReal = false
                 }
             };
@@ -355,7 +355,7 @@ namespace AssessingPeoplesSkills
                     ProbabilityOfNotMistake = ProbNotMistake,
                     ProbabilityOfSkillTrue = ProbSkillTrue,
                     GuessPrior = guessPrior,
-                    ShowFactorGraph = false,
+                    ShowFactorGraph = true,
                     IsReal = true
                 }
             };
