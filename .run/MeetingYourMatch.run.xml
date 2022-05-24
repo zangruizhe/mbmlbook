@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MeetingYourMatch" type="DotNetProject" factoryName=".NET Project">
     <option name="EXE_PATH" value="$PROJECT_DIR$/src/3. Meeting Your Match/bin/Debug/netcoreapp2.1/MeetingYourMatch.dll" />
-    <option name="PROGRAM_PARAMETERS" value="" />
+    <option name="PROGRAM_PARAMETERS" value="./" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/3. Meeting Your Match/bin/Debug/netcoreapp2.1" />
     <option name="PASS_PARENT_ENVS" value="1" />
     <option name="USE_EXTERNAL_CONSOLE" value="0" />
@@ -14,7 +14,7 @@
     <option name="PROJECT_KIND" value="DotNetCore" />
     <option name="PROJECT_TFM" value=".NETCoreApp,Version=v2.1" />
     <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_netcoreapp2.1 build" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_build" />
     </method>
   </configuration>
 </component>

@@ -47,7 +47,7 @@ namespace MeetingYourMatch
             // This flag runs experiments which are not fully described in the book
             // but may be helpful to understand the text. 
             var runAdditionalExperiments = false;
-            var showFactorGraphs = false;
+            var showFactorGraphs = true;
             var modelRunner = new ModelRunner(outputter, showFactorGraphs);
             var demoFigures = new DemoFigures();
 
