@@ -152,6 +152,7 @@ type MultiPlayerWithDraw(performanceVariance: float) =
         GetVarArray<Gaussian> "skillPriors" Player
 
     let skills = GetVarArray<float> "skills" Player
+    do skills.[Player] <- Variable.GaussianFromMeanAndVariance(Variable.Random(skillsPrior.[Player]), 1.44)
 
     let performanceVariance =
         Variable
@@ -180,43 +181,42 @@ type MultiPlayerWithDraw(performanceVariance: float) =
         (GetVarArray<int> "scores" gamePlayer)
             .Attrib(DoNotInfer())
 
-    do skills.[Player] <- Variable.GaussianFromMeanAndVariance(Variable.Random(skillsPrior.[Player]), 1.44)
     do performances.[gamePlayer] <- Variable.GaussianFromMeanAndVariance(gameSkills.[gamePlayer], performanceVariance)
-
-
     do
         let gp = Variable.ForEach(gamePlayer)
+        do
+            using
+                (Variable.If(gp.Index >> 0))
+                (fun _ ->
+                    let first = performances.[gp.Index - 1]
+                    let second = performances.[gp.Index]
+                    let diff = (first - second) .Named("diff")
 
-        Variable.IfBlock
-            (gp.Index >> 0)
-            (fun _ ->
-                let first = performances.[gp.Index - 1]
-                let second = performances.[gp.Index]
-                let diff = (first - second).Named("diff")
-
-                Variable.IfBlock
-                    (first == second)
-                    (fun _ -> Variable.ConstrainBetween(diff, -drawMargin, drawMargin))
-                    (fun _ -> Variable.ConstrainTrue(diff >> drawMargin)))
-
-            (fun _ -> ())
-
-        do gp.Dispose()
+                    Variable.IfBlock
+                        (scores.[gp.Index - 1] == scores.[gp.Index])
+                        (fun _ -> Variable.ConstrainBetween(diff, -drawMargin, drawMargin))
+                        (fun _ -> Variable.ConstrainTrue(diff >> drawMargin)))
+        gp.Dispose()
 
     member this.SetObserved() =
-        drawMarginPrior.ObservedValue <- Gaussian.FromMeanAndVariance(1, 10)
+        
+        let p1 = Gaussian(120, 400)
+        let p2 = Gaussian(100, 1600)
+        let p3 = Gaussian(140, 1600)
+        drawMarginPrior.ObservedValue <- Gaussian.PointMass(0)
         numPlayer.ObservedValue <- 3
-        skillsPrior.ObservedValue <- [| player; player; player |]
+        skillsPrior.ObservedValue <- [| p1; p2; p3 |]
         numGamePlayer.ObservedValue <- 3
         playerIndices.ObservedValue <- [| 0; 1; 2 |]
         scores.ObservedValue <- [| 2; 1; 0 |]
 
     member this.Infer() =
         let drawMargin = engine.Infer<Gaussian>(drawMargin)
+        let skillsPost = engine.Infer<Gaussian []>(skills)
 
-        printfn $"drawMargin post={drawMargin}"
-        drawMargin
-
+        printfn $"drawMargin post=%A{drawMargin}"
+        printfn $"skills post=%A{skillsPost}"
+        skillsPost, drawMargin
 let GetResult (game: TwoPlayerGame) =
     match game.Player1Score = game.Player2Score, game.Player1Score < game.Player2Score with
     | true, _ -> 1
@@ -268,6 +268,7 @@ let SimpleOneGame () =
 let MultiPlayerGame () =
     let model = MultiPlayerWithDraw(PerformanceVariance)
     model.SetObserved()
+    model.Infer()
 
 let Infer () =
     //    // game without draw

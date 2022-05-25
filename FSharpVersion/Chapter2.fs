@@ -1,5 +1,6 @@
 module FSharpVersion.Chapter2
 
+open Microsoft.FSharp.Quotations
 open Microsoft.ML.Probabilistic.Distributions
 open Microsoft.ML.Probabilistic.Models
 open Microsoft.ML.Probabilistic.FSharp
@@ -39,7 +40,6 @@ module Factor =
 
         noisyAllTrue
 
-
     let NoisyAllTrue
         (variableArray: VariableArray<bool>)
         (probNoMistake: Variable<float>)
@@ -65,7 +65,6 @@ module NoisyAndModel =
         
     let probSkillTrue =
         GetVarArray<float> "probSkillTrue" Skills
-        
 
     let numSkillsForEachQuestion =
         (GetVarArray<int> "numSkillsForQuestions" Questions)
@@ -300,8 +299,8 @@ module Unrolled =
                             .SetTo(
                                 Factor.AddNoise
                                     (unrolledSkills.[p][skills[0]]) // (probNotMistake[q]) (probGuess[q])
-                                    ProbabilityOfNotMistake
-                                    ProbabilityOfGuess
+                                    (Variable.Observed(ProbabilityOfNotMistake))
+                                    (Variable.Observed(ProbabilityOfGuess))
                             )
                     | 2 ->
                         let hasSkills =
@@ -313,8 +312,8 @@ module Unrolled =
                             .SetTo(
                                 Factor.AddNoise
                                     hasSkills //(probNotMistake[q]) (probGuess[q])
-                                    ProbabilityOfNotMistake
-                                    ProbabilityOfGuess
+                                    (Variable.Observed(ProbabilityOfNotMistake))
+                                    (Variable.Observed(ProbabilityOfGuess))
                             )
                     | _ -> failwith "can not go to here"))
 
