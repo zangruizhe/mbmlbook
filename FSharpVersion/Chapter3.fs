@@ -7,6 +7,21 @@ open Microsoft.ML.Probabilistic.Distributions
 open Microsoft.ML.Probabilistic.Models.Attributes
 
 open FSharpVersion.Common
+open MeetingYourMatch
+open MeetingYourMatch.Items
+open MBMLViews
+open MBMLCommon
+
+[<Literal>]
+let DataPath = __SOURCE_DIRECTORY__ + "/c3_data/"
+
+let inputs, games  =
+    let inputs = FileUtils.Load<Inputs<TwoPlayerGame>>(DataPath, "Halo2-HeadToHead")
+    let games =  inputs.Games |> Seq.filter (fun g -> g.Players.Contains("Gamer01266") <> true &&  g.Players.Contains("Gamer00296") <> true)|> Seq.toArray
+    inputs.Players.Remove("Gamer01266") |> ignore
+    inputs.Players.Remove("Gamer00296") |> ignore
+    inputs, games
+
 
 let  Skill1 = 120.0
 let  Skill2 = 100.0
@@ -88,20 +103,65 @@ type TwoPlayerWithDraw(performanceVariance:float) =
         outcome.ObservedValue <- outcomePrior
         
     member this.Infer() =
-        printfn $"skill1 post={engine.Infer<Gaussian>(skill1)}"
-        printfn $"skill2 post={engine.Infer<Gaussian>(skill2)}"
-        printfn $"drawMargin post={engine.Infer<Gaussian>(drawMargin)}"
-
-let Infer() =
-    // game without draw
-    let model = TwoPlayerMessage(PerformanceVariance)
-    model.SetObserved s1 s2 true
-    model.InferSkill1()
+        let sk1 = engine.Infer<Gaussian>(skill1)
+        let sk2 = engine.Infer<Gaussian>(skill2)
+        let drawMargin = engine.Infer<Gaussian>(drawMargin)
+        
+        printfn $"skill1 post={sk1}"
+        printfn $"skill2 post={sk2}"
+        printfn $"drawMargin post={drawMargin}"
+        sk1, sk2, drawMargin
+        
+let GetResult (game:TwoPlayerGame) =
+    match game.Player1Score = game.Player2Score , game.Player1Score < game.Player2Score with
+    | true, _ -> 1
+    | _, true -> 2
+    | _ -> 0
     
+let MultiGames () =
     
-    // game with draw
+    let prior = inputs.TrueSkillPriors
+    let plays = inputs.Players
+    let skillPrior = inputs.SkillPrior
+    
+    let mutable margins = [prior.DrawMargin]
+    let mutable predictions = List.empty
+    let mutable post = prior.Skills.Keys |> Seq.map(fun k -> (k, [prior.Skills[k]])) |> Map.ofSeq
+    
+    let model = TwoPlayerWithDraw(inputs.TrueSkillParameters.PerformanceVariance) 
+    model.Construct()
+    
+    games
+    |> Array.iter (fun g ->
+        let p1 = post[g.Player1]
+        let p2 = post[g.Player2]
+        let margin = List.head margins
+        
+        model.SetObserved p1.Head p2.Head margin (int g.Outcome)
+        let p1p, p2p, mp = model.Infer()
+        post <- Map.add g.Player1 (p1p::p1) post
+        post <- Map.add g.Player2 (p2p::p2) post
+        margins <- mp::margins
+    )
+    
+    ()
+    
+let OneGame ()=
     let player = Gaussian.FromMeanAndVariance(25, 69.44)
     let model = TwoPlayerWithDraw(17.36)
     model.Construct()
     model.SetObserved player player  (Gaussian.FromMeanAndVariance(1, 10)) 2
     model.Infer()
+    
+let SimpleOneGame()=
+    let model = TwoPlayerMessage(PerformanceVariance)
+    model.SetObserved s1 s2 true
+    model.InferSkill1()
+    
+let Infer() =
+    // game without draw
+    SimpleOneGame()
+    // game with draw
+    OneGame() |> ignore
+    // whole game
+    MultiGames()

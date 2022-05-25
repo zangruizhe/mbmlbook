@@ -19,6 +19,9 @@
     <Reference Include="MBMLCommon">
       <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\MBMLCommon.dll</HintPath>
     </Reference>
+    <Reference Include="MeetingYourMatch, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\src\3. Meeting Your Match\bin\Debug\netcoreapp2.1\MeetingYourMatch.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
