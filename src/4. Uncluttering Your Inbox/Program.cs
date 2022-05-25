@@ -99,7 +99,7 @@ namespace UnclutteringYourInbox
 
         public static void RunExperiments(Outputter outputter)
         {
-            bool showFactorGraph = false;
+            bool showFactorGraph = true;
 
             LoadAllInputFiles(DataPath);
 
