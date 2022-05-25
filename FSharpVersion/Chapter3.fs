@@ -49,11 +49,11 @@ let PerformanceVariance = Beta * Beta
 
 type TwoPlayerMessage(performanceVariance: float) =
     //v1
-    let skill1Prior = GetGaussianVar "JSkillPrior"
-    let skill1 = GetVarFromGaussian "JSkill" skill1Prior
+    let skill1Prior = GetVar "JSkillPrior"
+    let skill1 = GetVarFromDist "JSkill" skill1Prior
 
-    let skill2Prior = GetGaussianVar "FSkillPrior"
-    let skill2 = GetVarFromGaussian "FSkill" skill2Prior
+    let skill2Prior = GetVar "FSkillPrior"
+    let skill2 = GetVarFromDist "FSkill" skill2Prior
 
     //    //v2
 //    let skill1Prior = Variable.Random(skill1PriorDis).Named("JSkillPrior")
@@ -89,16 +89,16 @@ type TwoPlayerMessage(performanceVariance: float) =
 
 type TwoPlayerWithDraw(performanceVariance: float) =
     //v1
-    let skill1Prior = GetGaussianVar "JSkillPrior"
-    let skill1 = GetVarFromGaussian "JSkill" skill1Prior
+    let skill1Prior = GetVar "JSkillPrior"
+    let skill1 = GetVarFromDist "JSkill" skill1Prior
 
-    let skill2Prior = GetGaussianVar "FSkillPrior"
-    let skill2 = GetVarFromGaussian "FSkill" skill2Prior
+    let skill2Prior = GetVar "FSkillPrior"
+    let skill2 = GetVarFromDist "FSkill" skill2Prior
 
-    let drawMarginPrior = GetGaussianVar "drawMarginPrior"
+    let drawMarginPrior = GetVar "drawMarginPrior"
 
     let drawMargin =
-        GetVarFromGaussian "drawMargin" drawMarginPrior
+        GetVarFromDist "drawMargin" drawMarginPrior
 
     //    //v2
 //    let skill1Prior = Variable.Random(skill1PriorDis).Named("JSkillPrior")
@@ -159,10 +159,10 @@ type MultiPlayerWithDraw(performanceVariance: float) =
             .Observed(performanceVariance)
             .Named("performanceVariance")
 
-    let drawMarginPrior = GetGaussianVar "drawMarginPrior"
+    let drawMarginPrior = GetVar "drawMarginPrior"
 
     let drawMargin =
-        GetVarFromGaussian "drawMargin" drawMarginPrior
+        GetVarFromDist "drawMargin" drawMarginPrior
 
     do Variable.ConstrainTrue(drawMargin >> 0.0)
 

@@ -21,17 +21,26 @@ let GetRange (name: string) =
 
 let GetVarArray<'T> name (range: Range) = Variable.Array<'T>(range).Named(name)
 
-let GetGaussianVar name = Variable.New<Gaussian>().Named(name)
+let GetVar<'T> name = Variable.New<'T>().Named(name)
+let GetGaussian name = GetVar<Gaussian> name
 
-let GetVarFromGaussian (name: string) (prior: Variable<Gaussian>) =
-    Variable.Random(prior).Named(name)
-
-let GetGamma (name: string) (prior: Variable<Gamma>) =
-    let tmp = Variable<float>.Random<Gamma> prior
-    tmp.Named(name)
+let GetVarFromDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) (prior: Variable<'D>) =
+    Variable.Random<'T, 'D>(prior).Named(name)
+    
+let GetVarWithDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) =
+    let prior = GetVar<'D> (name+"Prior")
+    prior, Variable.Random<'T, 'D>(prior).Named(name)
+    
+let GetVarWithGaussian (name:string) =
+    let prior = GetVar<Gaussian> (name+"Prior")
+    let var = Variable.Random(prior).Named(name)
+    prior, var
+    
 
 let GetGaussianArray (mean: Variable<float>) (precise: Variable<float>) (len: Variable<int>) =
     let range = Range len
 
-    Variable.AssignVariableArray(Variable.Array<float> range) range (fun d ->
-        Variable.GaussianFromMeanAndPrecision(mean, precise))
+    Variable.AssignVariableArray
+        (Variable.Array<float> range)
+        range
+        (fun _ -> Variable.GaussianFromMeanAndPrecision(mean, precise))
