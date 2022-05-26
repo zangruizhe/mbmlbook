@@ -149,9 +149,9 @@ type MultiPlayerWithDraw(performanceVariance: float) =
     let numGamePlayer, gamePlayer = GetRange "gamePlayer"
 
     let skillsPrior =
-        GetVarArray<Gaussian> "skillPriors" Player
+        GetArrayVar<Gaussian> "skillPriors" Player
 
-    let skills = GetVarArray<float> "skills" Player
+    let skills = GetArrayVar<float> "skills" Player
     do skills.[Player] <- Variable.GaussianFromMeanAndVariance(Variable.Random(skillsPrior.[Player]), 1.44)
 
     let performanceVariance =
@@ -167,10 +167,10 @@ type MultiPlayerWithDraw(performanceVariance: float) =
     do Variable.ConstrainTrue(drawMargin >> 0.0)
 
     let playerIndices =
-        GetVarArray<int> "playerIndices" gamePlayer
+        GetArrayVar<int> "playerIndices" gamePlayer
 
     let performances =
-        GetVarArray<double> "performance" gamePlayer
+        GetArrayVar<double> "performance" gamePlayer
 
     let gameSkills =
         Variable
@@ -178,28 +178,31 @@ type MultiPlayerWithDraw(performanceVariance: float) =
             .Named("gameSkills")
 
     let scores =
-        (GetVarArray<int> "scores" gamePlayer)
+        (GetArrayVar<int> "scores" gamePlayer)
             .Attrib(DoNotInfer())
 
     do performances.[gamePlayer] <- Variable.GaussianFromMeanAndVariance(gameSkills.[gamePlayer], performanceVariance)
+
     do
         let gp = Variable.ForEach(gamePlayer)
+
         do
             using
                 (Variable.If(gp.Index >> 0))
                 (fun _ ->
                     let first = performances.[gp.Index - 1]
                     let second = performances.[gp.Index]
-                    let diff = (first - second) .Named("diff")
+                    let diff = (first - second).Named("diff")
 
                     Variable.IfBlock
                         (scores.[gp.Index - 1] == scores.[gp.Index])
                         (fun _ -> Variable.ConstrainBetween(diff, -drawMargin, drawMargin))
                         (fun _ -> Variable.ConstrainTrue(diff >> drawMargin)))
+
         gp.Dispose()
 
     member this.SetObserved() =
-        
+
         let p1 = Gaussian(120, 400)
         let p2 = Gaussian(100, 1600)
         let p3 = Gaussian(140, 1600)
@@ -217,6 +220,7 @@ type MultiPlayerWithDraw(performanceVariance: float) =
         printfn $"drawMargin post=%A{drawMargin}"
         printfn $"skills post=%A{skillsPost}"
         skillsPost, drawMargin
+
 let GetResult (game: TwoPlayerGame) =
     match game.Player1Score = game.Player2Score, game.Player1Score < game.Player2Score with
     | true, _ -> 1

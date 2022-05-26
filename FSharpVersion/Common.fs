@@ -19,28 +19,58 @@ let GetRange (name: string) =
     let len = GetRangeLen("num" + name)
     len, Range(len).Named(name)
 
-let GetVarArray<'T> name (range: Range) = Variable.Array<'T>(range).Named(name)
-
 let GetVar<'T> name = Variable.New<'T>().Named(name)
-let GetGaussian name = GetVar<Gaussian> name
+
+let GetArrayVar<'T> name (range: Range) = Variable.Array<'T>(range).Named(name)
+
+let GetArrayOfArrayVar<'T> name (column: Range) (row: Range) =
+    Variable
+        .Array<'T>(Variable.Array<'T>(column), row)
+        .Named(name)
 
 let GetVarFromDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) (prior: Variable<'D>) =
     Variable.Random<'T, 'D>(prior).Named(name)
-    
+
 let GetVarWithDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) =
-    let prior = GetVar<'D> (name+"Prior")
+    let prior = GetVar<'D>(name + "Prior")
     prior, Variable.Random<'T, 'D>(prior).Named(name)
-    
-let GetVarWithGaussian (name:string) =
-    let prior = GetVar<Gaussian> (name+"Prior")
-    let var = Variable.Random(prior).Named(name)
-    prior, var
-    
 
-let GetGaussianArray (mean: Variable<float>) (precise: Variable<float>) (len: Variable<int>) =
-    let range = Range len
 
-    Variable.AssignVariableArray
-        (Variable.Array<float> range)
-        range
-        (fun _ -> Variable.GaussianFromMeanAndPrecision(mean, precise))
+let GetArrayDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (range: Range) =
+    //    let priors = Variable.New<DistributionStructArray<Gaussian, double>>().Named(name+"Priors")
+    let priors =
+        Variable.Array<'D>(range).Named(name + "Priors")
+
+    let value = Variable.Array<'T>(range).Named(name)
+
+    Variable.ForeachBlock range (fun _ -> value.[range] <- Variable.Random(priors.[range]))
+
+    priors, value
+
+let GetGaussian name = GetVar<Gaussian> name
+
+let GetVarWithGaussian (name: string) = GetVarWithDist<float, Gaussian>(name)
+
+let AddDoNotInfer<'T> (value: Variable<'T>) = value.AddAttribute(DoNotInfer())
+
+let GetGaussianArrayV0 (name: string) (range: Range) =
+    let priors =
+        Variable
+            .New<DistributionStructArray<Gaussian, double>>()
+            .Named(name + "Priors")
+
+    let value =
+        Variable.Array<double>(range).Named(name)
+
+    value.SetTo(Variable.Random(priors))
+    priors, value
+
+let GetGaussianArray (name: string) (range: Range) = GetArrayDst<float, Gaussian> name range
+
+//let GetGaussianArray (mean: Variable<float>) (precise: Variable<float>) (len: Variable<int>) =
+//    let range = Range len
+//
+//    Variable.AssignVariableArray
+//        (Variable.Array<float> range)
+//        range
+//        (fun _ -> Variable.GaussianFromMeanAndPrecision(mean, precise))

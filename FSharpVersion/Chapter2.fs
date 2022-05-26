@@ -58,16 +58,16 @@ module NoisyAndModel =
         GetRange "Questions"
 
     let probNotMistake =
-        GetVarArray<float> "probNoMistake" Questions
+        GetArrayVar<float> "probNoMistake" Questions
 
     let probGuess =
-        GetVarArray<float> "probGuess" Questions
+        GetArrayVar<float> "probGuess" Questions
         
     let probSkillTrue =
-        GetVarArray<float> "probSkillTrue" Skills
+        GetArrayVar<float> "probSkillTrue" Skills
 
     let numSkillsForEachQuestion =
-        (GetVarArray<int> "numSkillsForQuestions" Questions)
+        (GetArrayVar<int> "numSkillsForQuestions" Questions)
             .Attrib(DoNotInfer())
 
     let QuestionsSkills =
@@ -188,16 +188,16 @@ module Unrolled =
         GetRange "Questions"
 
     let probNotMistake =
-        GetVarArray<float> "probNoMistake" Questions
+        GetArrayVar<float> "probNoMistake" Questions
 
     let probGuess =
-        GetVarArray<float> "probGuess" Questions
+        GetArrayVar<float> "probGuess" Questions
 
     let probSkillTrue =
-        GetVarArray<float> "probSkillTrue" Skills
+        GetArrayVar<float> "probSkillTrue" Skills
 
     let numSkillsForEachQuestion =
-        (GetVarArray<int> "numSkillsForQuestions" Questions)
+        (GetArrayVar<int> "numSkillsForQuestions" Questions)
             .Attrib(DoNotInfer())
 
     let QuestionsSkills =
@@ -392,10 +392,10 @@ module LearnedNoisyAndModel =
         GetRange "Questions"
 
     let probNotMistake =
-        GetVarArray<float> "probNoMistake" Questions
+        GetArrayVar<float> "probNoMistake" Questions
 
     let probGuess =
-        GetVarArray<float> "probGuess" Questions
+        GetArrayVar<float> "probGuess" Questions
         
     Variable.ForeachBlock Questions (fun _ -> probGuess[Questions] <- Variable.Beta(2.5, 7.5).Named("GuessPrior"))
 //    Variable.ForeachBlock Questions (fun _ -> probGuess[Questions].SetTo(Variable.Beta(2.5, 7.5).Named("GuessPrior")))
@@ -404,11 +404,11 @@ module LearnedNoisyAndModel =
 //        .ForEach(People)
 
     let probSkillTrue =
-        GetVarArray<float> "probSkillTrue" Skills
+        GetArrayVar<float> "probSkillTrue" Skills
         
 
     let numSkillsForEachQuestion =
-        (GetVarArray<int> "numSkillsForQuestions" Questions)
+        (GetArrayVar<int> "numSkillsForQuestions" Questions)
             .Attrib(DoNotInfer())
 
     let QuestionsSkills =
