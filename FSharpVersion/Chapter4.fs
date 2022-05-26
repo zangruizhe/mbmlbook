@@ -7,13 +7,14 @@ open Microsoft.ML.Probabilistic.Distributions
 open Microsoft.ML.Probabilistic.Models.Attributes
 
 open FSharpVersion.Common
-open MeetingYourMatch
-open MeetingYourMatch.Items
+open UnclutteringYourInbox
+open System.Linq
 open MBMLViews
 
 [<Literal>]
 let DataPath = __SOURCE_DIRECTORY__ + "/c4_data/"
-
+let csharp_runner = ModelRunner()
+ModelRunner.LoadAllInputFiles(DataPath)
 type OneFutureModel() =
     let numMsg, Msg = GetRange "Msg"
 
@@ -50,13 +51,17 @@ type OneFutureModel() =
 
     do engine.OptimiseForVariables <- [| Weight; Threshold |]
 
-    member this.SetObserved ()=
-        numMsg.ObservedValue <- 3
-        FeatureValue.ObservedValue <- [| 1; 2; 3 |]
-        NoiseVariance.ObservedValue <- 0.5
-        RepliedTo.ObservedValue <- [| false; false; true |]
+    member this.SetObserved()=
+        let input = ModelRunner.OneFeature.Noise.InputsCollection.Inputs[0]
+        let train = input.TrainAndValidation.Instances
+        
+        numMsg.ObservedValue <- train.Count
+        FeatureValue.ObservedValue <- train |> Seq.map (fun m -> m.FeatureValues.First().Value ) |> Seq.toArray
+        NoiseVariance.ObservedValue <- 10
+        
         WeightPrior.ObservedValue <- Gaussian.FromMeanAndVariance(0, 1)
-        ThresholdPrior.ObservedValue <-Gaussian.FromMeanAndVariance(0, 100) 
+        ThresholdPrior.ObservedValue <-Gaussian.FromMeanAndVariance(0, 10)
+        RepliedTo.ObservedValue <- train|> Seq.map (fun m -> m.Label) |> Seq.toArray
 
     member this.Infer() =
         let weight = engine.Infer<Gaussian>(Weight)
@@ -70,4 +75,5 @@ type OneFutureModel() =
 let Infer () =
     let model = OneFutureModel()
     model.SetObserved()
-    model.Infer()
+    model.Infer() |> ignore
+    ()
