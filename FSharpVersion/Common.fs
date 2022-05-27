@@ -43,7 +43,7 @@ let GetArrayDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (range: Rang
 
     let value = Variable.Array<'T>(range).Named(name)
 
-    Variable.ForeachBlock range (fun _ -> value.[range] <- Variable.Random(priors.[range]))
+    value.[range] <- Variable.Random(priors.[range])
 
     priors, value
 

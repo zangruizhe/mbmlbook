@@ -1,5 +1,6 @@
 module FSharpVersion.Chapter4
 
+open Microsoft.ML.Probabilistic.Learners
 open Microsoft.ML.Probabilistic.Models
 open Microsoft.ML.Probabilistic.FSharp
 open Microsoft.ML.Probabilistic.Distributions
@@ -81,7 +82,7 @@ type OneFutureModel() =
 
 type ReplyToModel() =
     // define variable
-    let numMsg, Emails = GetRange "Msg"
+    let numMsg, Emails = GetRange "Emails"
     let numFeatures, Features = GetRange "Features"
 
     let FeatureValue =
@@ -128,7 +129,8 @@ type ReplyToModel() =
 
     member this.SetObserved() =
         let input =
-            ModelRunner.CombiningFeatures.Separate.InputsCollection.Inputs.[0]
+            ModelRunner.CombiningFeatures.Compound.InputsCollection.Inputs.[0]
+//            ModelRunner.FeaturesWithManyStates.NonSparse.InputsCollection.Inputs.[0]
 
         let train = input.TrainAndValidation.Instances
 

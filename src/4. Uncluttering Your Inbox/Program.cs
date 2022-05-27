@@ -106,20 +106,20 @@ namespace UnclutteringYourInbox
             Console.WriteLine($"\n{Contents.S2AModelForClassification.NumberedName}.\n");
             var oneFeature = OneFeature.Run(showFactorGraph, ThresholdAndNoiseVariance);
             outputter.Out(oneFeature, Contents.S2AModelForClassification.NumberedName, "OneFeature");
-
+            
             Console.WriteLine("Producing demo for step and Gaussian CDFs.");
             var stepAndGaussianCdfDemo = StepAndGaussianCdfDemo();
             outputter.Out(stepAndGaussianCdfDemo, Contents.S2AModelForClassification.NumberedName, "StepAndGaussianCdfDemo");
-
-
+            
+            
             Console.WriteLine($"\n{Contents.S3ModellingMultipleFeatures.NumberedName}.\n");
             Console.WriteLine("Producing demo for logistic function.");
             var logisticDemo = LogisticDemo();
             outputter.Out(logisticDemo, Contents.S3ModellingMultipleFeatures.NumberedName, "LogisticFunctionDemo");
-
+            
             var combiningFeatures = CombiningFeatures.Run(showFactorGraph, ThresholdAndNoiseVariance);
             outputter.Out(combiningFeatures, Contents.S3ModellingMultipleFeatures.NumberedName, "CombiningFeatures");
-
+            
             Console.WriteLine($"\n{Contents.S4DesigningAFeatureSet.NumberedName}.\n");
             var featuresWithManyStates = FeaturesWithManyStates.Run(ThresholdAndNoiseVariance);
             outputter.Out(featuresWithManyStates, Contents.S4DesigningAFeatureSet.NumberedName, "FeaturesWithManyStates");
@@ -149,7 +149,7 @@ namespace UnclutteringYourInbox
             Console.WriteLine($"\n{Contents.S6LearningAsEmailsArrive.NumberedName}.\n");
             var singleUserOnline = SingleUserOnline.Run(showFactorGraph, ThresholdAndNoiseVariance);
             outputter.Out(singleUserOnline, Contents.S6LearningAsEmailsArrive.NumberedName, "SingleUserOnline");
-
+            
             Console.WriteLine("Producing demo for Gamma PDFs.");
             var gammasDemo = GammasDemo();
             outputter.Out(gammasDemo, Contents.S6LearningAsEmailsArrive.NumberedName, "GammasDemo");
