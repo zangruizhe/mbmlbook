@@ -12,6 +12,7 @@
     <Compile Include="Chapter3.fs" />
     <Compile Include="Chapter4.fs" />
     <Compile Include="Program.fs" />
+    <Compile Include="Chapter6.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AssessingPeoplesSkills">
@@ -25,6 +26,9 @@
     </Reference>
     <Reference Include="UnclutteringYourInbox, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\src\4. Uncluttering Your Inbox\bin\Debug\netcoreapp2.1\UnclutteringYourInbox.dll</HintPath>
+    </Reference>
+    <Reference Include="UnderstandingAsthma">
+      <HintPath>..\src\6. Understanding Asthma\bin\Debug\netcoreapp2.1\UnderstandingAsthma.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

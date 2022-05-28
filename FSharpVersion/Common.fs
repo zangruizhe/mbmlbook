@@ -1,7 +1,6 @@
 module FSharpVersion.Common
 
 open Microsoft.ML.Probabilistic.Models
-open Microsoft.ML.Probabilistic.FSharp
 open Microsoft.ML.Probabilistic.Models.Attributes
 open Microsoft.ML.Probabilistic.Distributions
 
@@ -27,6 +26,9 @@ let GetArrayOfArrayVar<'T> name (column: Range) (row: Range) =
     Variable
         .Array<'T>(Variable.Array<'T>(column), row)
         .Named(name)
+        
+let Get3DArrayVar<'T> name (column: Range) (row: Range) (threeD: Range)=
+    Variable.Array<'T>(Variable.Array<'T>(column, row), threeD).Named(name)
 
 let GetVarFromDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) (prior: Variable<'D>) =
     Variable.Random<'T, 'D>(prior).Named(name)

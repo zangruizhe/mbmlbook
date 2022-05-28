@@ -52,7 +52,7 @@ namespace UnderstandingAsthma
         /// <param name="numClassesForMultiClassRuns">Numbers of classes to use in experiments.</param>
         public static void RunExperiments(Outputter outputter, int[] numClassesForMultipleClassRuns)
         {
-            bool showFactorGraph = false;
+            bool showFactorGraph = true;
             Rand.Restart(2);
 
             Console.WriteLine($"\n{Contents.S2TryingOutTheModel.NumberedName}.\n");
