@@ -242,10 +242,14 @@ type AsthmaModel(breakSymmetry: bool) =
         numClasses.ObservedValue <- numVulnerabilities
 
         skinTest.ObservedValue <-
-            Array.init nY (fun y -> Array2D.init nN nA (fun n a -> (((data.SkinTestData.[y][n])[a]).HasValue = true)))
+            Array.init nY (fun y -> Array2D.init nN nA (fun n a ->
+                let tmp = (data.SkinTestData.[y][n])[a]
+                (tmp.HasValue = true && tmp.Value = 1)))
 
         igeTest.ObservedValue <-
-            Array.init nY (fun y -> Array2D.init nN nA (fun n a -> (((data.IgeTestData.[y][n])[a]).HasValue = true)))
+            Array.init nY (fun y -> Array2D.init nN nA (fun n a ->
+                let tmp = (data.IgeTestData.[y][n])[a]
+                tmp.HasValue = true && tmp.Value = 1))
 
         skinTestMissing.ObservedValue <-
             Array.init nY (fun y -> Array2D.init nN nA (fun n a -> ((data.SkinTestData.[y][n])[a]).HasValue = false))
@@ -294,6 +298,7 @@ type AsthmaModel(breakSymmetry: bool) =
 let Infer () =
     let numVulnerabilities = 1
     let model = AsthmaModel(true)
+    engine.NumberOfIterations <- 30
     model.InitializeMessages data numVulnerabilities
     model.SetObservation data numVulnerabilities
     model.SetPriors data numVulnerabilities null
