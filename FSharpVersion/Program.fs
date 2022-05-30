@@ -4,4 +4,5 @@ open FSharpVersion
 //Chapter1.Infer()
 //Chapter2.Infer()
 //Chapter3.Infer()
-Chapter4.Infer()
+//Chapter4.Infer()
+Chapter6.Infer()
