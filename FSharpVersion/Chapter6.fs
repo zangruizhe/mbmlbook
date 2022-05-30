@@ -365,7 +365,8 @@ let private ClinicalInfer () =
         clinical.Infer())
 
 let private AsthmaInfer () =
-    let numVulnerabilities = 5
+    Rand.Restart(3)
+    let numVulnerabilities = 4
     let model = AsthmaModel()
     engine.NumberOfIterations <- 30
     model.InitializeMessages data numVulnerabilities
