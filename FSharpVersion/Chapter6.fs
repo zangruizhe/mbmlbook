@@ -1,15 +1,10 @@
 module FSharpVersion.Chapter6
 
-open Microsoft.FSharp.Quotations
-open Microsoft.ML.Probabilistic.Learners
 open Microsoft.ML.Probabilistic.Models
 open Microsoft.ML.Probabilistic.FSharp
 open Microsoft.ML.Probabilistic.Distributions
 open Microsoft.ML.Probabilistic.Math
-open Microsoft.ML.Probabilistic.Models.Attributes
-open Microsoft.ML.Probabilistic.Collections
 
-open System.Linq
 open FSharpVersion.Common
 open UnderstandingAsthma
 
@@ -32,9 +27,72 @@ let data =
 
     AllergenData.WithAllergensRemoved(allData, list)
 
+type ClinicalTrialModel() =
+    let numControl, controlGroup =
+        GetRange "controlGroup"
 
-type AsthmaModel(breakSymmetry: bool) =
-    let breakSymmetry = true
+    let numtreat, treatedGroup =
+        GetRange "treatedGroup"
+
+    let recoveredControl =
+        GetArrayVar "recoveredControl" controlGroup
+
+    let recoveredTreated =
+        GetArrayVar "recoveredTreated" treatedGroup
+
+    let model =
+        Variable.Bernoulli(0.5).Named("model")
+
+    let probControl =
+        Variable.Beta(1, 1).Named("probControl")
+
+    let probTreated =
+        Variable.Beta(1, 1).Named("probTreated")
+
+    let probRecovery =
+        Variable.Beta(1, 1).Named("probRecovery")
+
+    do
+        Variable.IfBlock
+            (model)
+            (fun _ ->
+                recoveredControl[controlGroup] <- Variable
+                    .Bernoulli(probControl)
+                    .ForEach(controlGroup)
+
+                recoveredTreated[treatedGroup] <- Variable
+                    .Bernoulli(probTreated)
+                    .ForEach(treatedGroup))
+            (fun _ ->
+                recoveredControl[controlGroup] <- Variable
+                    .Bernoulli(probRecovery)
+                    .ForEach(controlGroup)
+
+                recoveredTreated[treatedGroup] <- Variable
+                    .Bernoulli(probRecovery)
+                    .ForEach(treatedGroup))
+
+    member this.SetObservation (recoveredControlOb: bool []) (recoveredTreatedOb: bool []) =
+        numControl.ObservedValue <- Array.length recoveredControlOb
+        numtreat.ObservedValue <- Array.length recoveredTreatedOb
+
+        recoveredControl.ObservedValue <- recoveredControlOb
+        recoveredTreated.ObservedValue <- recoveredTreatedOb
+
+    member this.Infer() =
+        let model = engine.Infer<Bernoulli>(model)
+
+        let probIfControl =
+            engine.Infer<Beta>(probControl)
+
+        let probIfTreated =
+            engine.Infer<Beta>(probTreated)
+
+        printfn $"post: model=%A{model}"
+        printfn $"probIfControl: model=%A{probIfControl}"
+        printfn $"probIfTreated: model=%A{probIfTreated}"
+
+type AsthmaModel() =
     let numYears, Years = GetRange "Years"
 
     let numChildren, Children =
@@ -76,12 +134,8 @@ type AsthmaModel(breakSymmetry: bool) =
             .Named("sensClassInitializer")
 
     do
-        match breakSymmetry with
-        | true ->
-            sensClass.InitialiseTo(sensClassInitializer)
-            |> ignore
-        | false -> ()
-
+        sensClass.InitialiseTo(sensClassInitializer)
+        |> ignore
 
     // Transition probabilities
     let probSens1Prior, probSens1 =
@@ -230,7 +284,6 @@ type AsthmaModel(breakSymmetry: bool) =
                 (Array.init nN (fun _ -> Discrete.PointMass(discreteUniform.Sample(), numVulnerabilities)))
 
     member this.SetObservation (data: AllergenData) (numVulnerabilities: int) =
-
         let nY = AllergenData.NumYears
         let nN = data.DataCountChild.Length
         let nA = data.NumAllergens
@@ -242,14 +295,16 @@ type AsthmaModel(breakSymmetry: bool) =
         numClasses.ObservedValue <- numVulnerabilities
 
         skinTest.ObservedValue <-
-            Array.init nY (fun y -> Array2D.init nN nA (fun n a ->
-                let tmp = (data.SkinTestData.[y][n])[a]
-                (tmp.HasValue = true && tmp.Value = 1)))
+            Array.init nY (fun y ->
+                Array2D.init nN nA (fun n a ->
+                    let tmp = (data.SkinTestData.[y][n])[a]
+                    (tmp.HasValue = true && tmp.Value = 1)))
 
         igeTest.ObservedValue <-
-            Array.init nY (fun y -> Array2D.init nN nA (fun n a ->
-                let tmp = (data.IgeTestData.[y][n])[a]
-                tmp.HasValue = true && tmp.Value = 1))
+            Array.init nY (fun y ->
+                Array2D.init nN nA (fun n a ->
+                    let tmp = (data.IgeTestData.[y][n])[a]
+                    tmp.HasValue = true && tmp.Value = 1))
 
         skinTestMissing.ObservedValue <-
             Array.init nY (fun y -> Array2D.init nN nA (fun n a -> ((data.SkinTestData.[y][n])[a]).HasValue = false))
@@ -295,11 +350,29 @@ type AsthmaModel(breakSymmetry: bool) =
         printfn $"post: ProbRetainSensitization=%A{ProbRetainSensitization}"
         printfn $"post: VulnerabilityClass=%A{VulnerabilityClass}"
 
-let Infer () =
-    let numVulnerabilities = 1
-    let model = AsthmaModel(true)
+let private ClinicalInfer () =
+    [| 20; 60; 100 |]
+    |> Array.iter (fun num ->
+        let clinical = ClinicalTrialModel()
+
+        let recoveredControl =
+            Program.GenerateMockClinicalTrialData(num, 0.4)
+
+        let recoveredTreated =
+            Program.GenerateMockClinicalTrialData(num, 0.65)
+
+        clinical.SetObservation recoveredControl recoveredTreated
+        clinical.Infer())
+
+let private AsthmaInfer () =
+    let numVulnerabilities = 5
+    let model = AsthmaModel()
     engine.NumberOfIterations <- 30
     model.InitializeMessages data numVulnerabilities
     model.SetObservation data numVulnerabilities
     model.SetPriors data numVulnerabilities null
     model.infer ()
+
+let Infer () =
+    //    ClinicalInfer()
+    AsthmaInfer()

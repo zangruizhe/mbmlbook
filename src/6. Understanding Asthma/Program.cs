@@ -296,7 +296,7 @@ namespace UnderstandingAsthma
             return model.Run(recoveredControl, recoveredTreated, showFactorGraph);
         }
 
-        private static bool[] GenerateMockClinicalTrialData(int numPatients, double fractionRecovered)
+        public static bool[] GenerateMockClinicalTrialData(int numPatients, double fractionRecovered)
         {
             var perm = Rand.Perm(numPatients);
             var numRecovered = (int) Math.Round(fractionRecovered * numPatients);
