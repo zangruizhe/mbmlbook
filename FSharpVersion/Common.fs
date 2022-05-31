@@ -61,7 +61,7 @@ let GetArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (rang
     value.[range] <- Variable.Random(priors.[range])
     priors, value
 
-let GetArrayofArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (column: Range) (row: Range) =
+let GetArrayOfArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (column: Range) (row: Range) =
     //    let priors = Variable.New<DistributionStructArray<Gaussian, double>>().Named(name+"Priors")
     let priors =
         GetArrayOfArrayVar<'D> (name + "Priors") column row
