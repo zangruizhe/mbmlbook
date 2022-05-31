@@ -271,7 +271,7 @@ type BiasedCommunityModel() =
 
         numCommunities.ObservedValue <- numOfCommunity
         numLabels.ObservedValue <- numOfLabels
-        numTweets.ObservedValue <- 5
+        numTweets.ObservedValue <- 6
         numWorkers.ObservedValue <- numOfWorkers
 
         WorkerJudgmentCount.ObservedValue <-
