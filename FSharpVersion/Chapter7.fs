@@ -1,5 +1,6 @@
 module FSharpVersion.Chapter7
 
+open System
 open Microsoft.ML.Probabilistic.Models
 open Microsoft.ML.Probabilistic.FSharp
 open Microsoft.ML.Probabilistic.Distributions
@@ -90,29 +91,32 @@ type HonestWorkerModel() =
 
                         Variable.ConstrainEqualRandom(labelsEqual, Bernoulli(0.9999)) // Add a slight amount of noise due to Infer.NET compiler bug.
                         )
-                    (fun _ ->
-
-                        WorkerLabel.[Workers][WorkerJudgment] <- Variable.Discrete(RandomGuess))))
+                    (fun _ -> WorkerLabel.[Workers][WorkerJudgment] <- Variable.Discrete(RandomGuess))))
 
     member this.SetObservation() =
+        let Labels =
+            [| 15; 16; 17; 18; 19; 300; 400 |]
+
         let workerJudgedTweetIndex =
-            [| [| 1; 2; 3 |]; [| 2; 3 |] |]
+            [| [| 1; 2; 3 |]
+               [| 2; 3; 4 |]
+               [| 0; 1; 2; 3; 4 |] |]
 
-        let workerLabel =
-            [| [| 5; 6; 7 |]; [| 6; 6 |] |]
+        let workerLabel = // should use label index not label value!
+            [| [| 1; 2; 3 |]
+               [| 2; 2; 2 |]
+               [| 1; 2; 2; 2; 3 |] |]
 
+        let goldLabelsIndices = [| 1; 3 |] // indices which twitter have gold label
+        let goldLabels = [| 2; 2 |] // should use label index not label value!
 
-        let goldLabelsIndices = [| 1; 3 |]
-        let goldLabels = [| 5; 7 |]
+        numGoldLabels.ObservedValue <- goldLabelsIndices.Length
+        GoldLabelIndices.ObservedValue <- goldLabelsIndices
+        GoldLabel.ObservedValue <- goldLabels
 
-        let Labels = [| 5; 6; 7; 8; 9; 10 |]
         numLabels.ObservedValue <- Array.length Labels
-        numTweets.ObservedValue <- 10
+        numTweets.ObservedValue <- 5
         numWorkers.ObservedValue <- workerLabel.Length
-
-        ProbLabelPrior.ObservedValue <- Dirichlet.Uniform(Array.length Labels)
-
-        WorkerLabel.ObservedValue <- workerLabel
 
         WorkerJudgmentCount.ObservedValue <-
             workerJudgedTweetIndex
@@ -120,11 +124,30 @@ type HonestWorkerModel() =
 
         WorkerJudgedTweetIndex.ObservedValue <- workerJudgedTweetIndex
 
-        numGoldLabels.ObservedValue <- goldLabelsIndices.Length
-        GoldLabelIndices.ObservedValue <- goldLabelsIndices
-        GoldLabel.ObservedValue <- goldLabels
+        WorkerLabel.ObservedValue <- workerLabel
 
+        ProbLabelPrior.ObservedValue <- Dirichlet.Uniform(Array.length Labels)
         RandomGuessPrior.ObservedValue <- Dirichlet.Uniform(Array.length Labels)
         AbilityPrior.ObservedValue <- Array.init workerLabel.Length (fun _ -> Beta(2, 1))
 
-let Infer () = ()
+    member this.Infer() =
+        //        let TrueLabelPost =
+//            engine.Infer<Discrete []> TrueLabel
+        let TrueLabel =
+            Infer<Discrete []> "TrueLabel" engine TrueLabel
+
+        let BackgroundLabelProb =
+            Infer<Dirichlet> "BackgroundLabelProb" engine ProbLabel
+
+        let RandomGuessProbability =
+            Infer<Dirichlet> "RandomGuessProbability" engine RandomGuess
+
+        let WorkerAbility =
+            Infer<Beta []> "WorkerAbility" engine Ability
+
+        ()
+
+let Infer () =
+    let honest_model = HonestWorkerModel()
+    honest_model.SetObservation()
+    honest_model.Infer()

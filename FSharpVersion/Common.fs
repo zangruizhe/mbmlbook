@@ -8,6 +8,11 @@ let engine = InferenceEngine()
 engine.ShowFactorGraph <- true
 engine.NumberOfIterations <- 10
 
+let Infer<'T> (name: string) (engine: InferenceEngine) prior =
+    let r = engine.Infer<'T>(prior)
+    printfn $"Posterior {name}=%A{r}"
+    r
+
 let GetRangeLen name =
     Variable
         .New<int>()
