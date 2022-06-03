@@ -8,6 +8,11 @@ let engine = InferenceEngine()
 engine.ShowFactorGraph <- true
 engine.NumberOfIterations <- 10
 
+let Infer<'T> (name: string) (engine: InferenceEngine) prior =
+    let r = engine.Infer<'T>(prior)
+    printfn $"Posterior {name}=%A{r}"
+    r
+
 let GetRangeLen name =
     Variable
         .New<int>()
@@ -55,7 +60,7 @@ let GetArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (rang
     value.[range] <- Variable.Random(priors.[range])
     priors, value
 
-let GetArrayofArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (column: Range) (row: Range) =
+let GetArrayOfArrayVarWithDst<'T, 'D when 'D :> IDistribution<'T>> (name: string) (column: Range) (row: Range) =
     //    let priors = Variable.New<DistributionStructArray<Gaussian, double>>().Named(name+"Priors")
     let priors =
         GetArrayOfArrayVar<'D> (name + "Priors") column row
