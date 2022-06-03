@@ -22,9 +22,9 @@ let GetVar<'T> name = Variable.New<'T>().Named(name)
 
 let GetArrayVar<'T> name (range: Range) = Variable.Array<'T>(range).Named(name)
 
-let GetArrayOfArrayVar<'T> name (single_row_range: Range) (num_row: Range) =
+let GetArrayOfArrayVar<'T> name (inner: Range) (outer: Range) =
     Variable
-        .Array<'T>(Variable.Array<'T>(single_row_range), num_row)
+        .Array<'T>(Variable.Array<'T>(inner), outer)
         .Named(name)
 
 let Get2DArrayVar<'T> name (row: Range) (column: Range) =
@@ -37,7 +37,6 @@ let Get3DArrayVar<'T> name (row: Range) (column: Range) (threeD: Range) =
         Variable.Array<'T>(x, threeD).Named(name)
 
     y // :> VariableArray<VariableArray2D<'T>, 'T [] [,]>
-
 
 let GetVarFromDist<'T, 'D when 'D :> IDistribution<'T>> (name: string) (prior: Variable<'D>) =
     Variable.Random<'T, 'D>(prior).Named(name)
