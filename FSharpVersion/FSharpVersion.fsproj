@@ -1,36 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="FSharpWrapper.fs" />
-    <Compile Include="Common.fs" />
-    <Compile Include="Chapter1.fs" />
-    <Compile Include="Chapter2.fs" />
-    <Compile Include="Chapter3.fs" />
-    <Compile Include="Chapter4.fs" />
-    <Compile Include="Chapter6.fs" />
-    <Compile Include="Chapter7.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="AssessingPeoplesSkills">
-      <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\AssessingPeoplesSkills.dll</HintPath>
-    </Reference>
-    <Reference Include="MBMLCommon">
-      <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\MBMLCommon.dll</HintPath>
-    </Reference>
-    <Reference Include="MeetingYourMatch, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\src\3. Meeting Your Match\bin\Debug\netcoreapp2.1\MeetingYourMatch.dll</HintPath>
-    </Reference>
-    <Reference Include="UnclutteringYourInbox, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\src\4. Uncluttering Your Inbox\bin\Debug\netcoreapp2.1\UnclutteringYourInbox.dll</HintPath>
-    </Reference>
-    <Reference Include="UnderstandingAsthma">
-      <HintPath>..\src\6. Understanding Asthma\bin\Debug\netcoreapp2.1\UnderstandingAsthma.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="FSharpWrapper.fs"/>
+        <Compile Include="Common.fs"/>
+        <Compile Include="Chapter1.fs"/>
+        <Compile Include="Chapter2.fs"/>
+        <Compile Include="Chapter3.fs"/>
+        <Compile Include="Chapter4.fs"/>
+        <Compile Include="Chapter6.fs"/>
+        <Compile Include="Chapter7.fs"/>
+        <Compile Include="Program.fs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="AssessingPeoplesSkills">
+            <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\AssessingPeoplesSkills.dll</HintPath>
+        </Reference>
+        <Reference Include="MBMLCommon">
+            <HintPath>..\src\2. Assessing Peoples Skills\bin\Debug\netcoreapp2.1\MBMLCommon.dll</HintPath>
+        </Reference>
+        <Reference Include="MeetingYourMatch, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\src\3. Meeting Your Match\bin\Debug\netcoreapp2.1\MeetingYourMatch.dll</HintPath>
+        </Reference>
+        <Reference Include="UnclutteringYourInbox, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\src\4. Uncluttering Your Inbox\bin\Debug\netcoreapp2.1\UnclutteringYourInbox.dll</HintPath>
+        </Reference>
+        <Reference Include="UnderstandingAsthma">
+            <HintPath>..\src\6. Understanding Asthma\bin\Debug\netcoreapp2.1\UnderstandingAsthma.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <Import Project="..\.paket\Paket.Restore.targets"/>
 </Project>

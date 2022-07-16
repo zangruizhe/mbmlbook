@@ -375,5 +375,5 @@ let private AsthmaInfer () =
     model.infer ()
 
 let Infer () =
-    //    ClinicalInfer()
-    AsthmaInfer()
+    ClinicalInfer()
+//    AsthmaInfer()
